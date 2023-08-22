@@ -89,4 +89,10 @@ export const SETTINGS = [
         description: 'En alt yetkili rolü işte.',
         type: 'role'
     },
+    {
+        name: 'Streamer Rolü',
+        value: 'streamerRole',
+        description: 'Streamer rolü işte.',
+        type: 'role'
+    },
 ];

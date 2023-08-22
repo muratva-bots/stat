@@ -10,6 +10,8 @@ import {
     Guild,
     GuildMember,
     Message,
+    PermissionFlagsBits,
+    PermissionOverwrites,
     Snowflake,
     User,
     time,
@@ -72,6 +74,24 @@ export class Utils {
                 }),
             ],
         });
+    }
+
+    getPermissions(permission: PermissionOverwrites) {
+        const permissions = {};
+        Object.keys(PermissionFlagsBits).forEach((p) => (permissions[p] = null));
+
+        const deny = permission.deny;
+        const allow = permission.allow;
+
+        Object.keys(PermissionFlagsBits).forEach((p) => {
+            if (allow.has(PermissionFlagsBits[p]) && !deny.has(PermissionFlagsBits[p])) {
+                permissions[p] = true;
+            } else if (!allow.has(PermissionFlagsBits[p]) && deny.has(PermissionFlagsBits[p])) {
+                permissions[p] = false;
+            }
+        });
+
+        return permissions;
     }
 
     getEmoji(name: string) {

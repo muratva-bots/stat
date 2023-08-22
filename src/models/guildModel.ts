@@ -1,10 +1,18 @@
 import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
-import { RankFlags } from 'src/enums/RankFlags';
+import { RankFlags } from '@/enums';
+import { PermissionsString } from 'discord.js';
 
 export interface IRank {
     type: RankFlags;
     count: number;
     role: string;
+}
+
+export interface IStreamChannel {
+    owner: string;
+    channel: string;
+    channelName: string;
+    permissions: string[];
 }
 
 export class StatClass {
@@ -43,6 +51,8 @@ export class StatClass {
     problemResolveCategory: string;
     staffTakeCategory: string;
     minStaffRole: string;
+    streamerRole: string;
+    owneredStreams: IStreamChannel[];
 }
 
 @modelOptions({ options: { customName: 'Guilds', allowMixed: 0 } })
@@ -113,7 +123,8 @@ export class GuildClass {
             dailyVoice: 0,
             lastVoice: 0,
             lastDay: new Date().setHours(0, 0, 0, 0),
-            days: 1
+            days: 1,
+            owneredStreams: []
         },
     })
     public stat: StatClass;
