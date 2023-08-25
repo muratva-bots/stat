@@ -1,15 +1,12 @@
-import { Team } from 'discord.js';
 import mainHandler from './mainHandler';
 
 const Command: Stat.ICommand = {
     usages: ['setup', 'kur'],
-    // checkPermission: ({ client, message }) => {
-    //     const ownerID =
-    //         client.application.owner instanceof Team
-    //             ? (client.application.owner as Team).ownerId
-    //             : client.application.owner.id;
-    //     return ownerID === message.author.id;
-    // },
+    checkPermission: ({ client, message }) => {
+        const ownerID =
+           client.config.BOT_OWNERS
+        return ownerID.includes(message.author.id);
+    },
     execute: ({ client, message, guildData }) => {
         mainHandler(client, message, guildData);
     },

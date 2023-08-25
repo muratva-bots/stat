@@ -1,15 +1,12 @@
-import { GuildModel } from "@/models";
-import { ActionRowBuilder, Events, ModalBuilder, PermissionFlagsBits, TextInputBuilder, TextInputStyle, VoiceChannel, bold, inlineCode, userMention } from "discord.js";
+import { GuildModel, StatClass } from "@/models";
+import { ActionRowBuilder, ButtonInteraction, Events, ModalBuilder, PermissionFlagsBits, TextInputBuilder, TextInputStyle, VoiceChannel, bold, inlineCode, userMention } from "discord.js";
+import { Client } from '@/structures';
 
-const inviteRegex = new RegExp(/discord(?:app.com\/invite|.gg|.me|.io)(?:[\\]+)?\/([a-zA-Z0-9\-]+)/, 'gi');
 
-const InteractionCreate: Stat.IEvent<Events.InteractionCreate> = {
-    name: Events.InteractionCreate,
-    execute: async (client, interaction) => {
+async function streamRoom(client: Client, interaction: ButtonInteraction, guildData: StatClass) {
+    const inviteRegex = new RegExp(/discord(?:app.com\/invite|.gg|.me|.io)(?:[\\]+)?\/([a-zA-Z0-9\-]+)/, 'gi');
+
         if (!interaction.isButton() || !["limit", "kick", "rename", "add", "transfer"].includes(interaction.customId)) return;
-
-        const guildData = client.servers.get(interaction.guildId);
-        if (!guildData) return;
 
         const member = await client.utils.getMember(interaction.guild, interaction.user.id);
         if (!member) return;
@@ -262,7 +259,6 @@ const InteractionCreate: Stat.IEvent<Events.InteractionCreate> = {
             }
             return;
         }
-    },
-}
+    }
 
-export default InteractionCreate;
+export default streamRoom;

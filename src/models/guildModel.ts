@@ -15,6 +15,14 @@ export interface IStreamChannel {
     permissions: string[];
 }
 
+export interface IPrivateRoom {
+    owner: string;
+    textChannel: string;
+    voiceChannel: string;
+    channelName: string;
+    userPermissions: string[]
+}
+
 export class StatClass {
     ranks: IRank[];
     days: number;
@@ -24,6 +32,7 @@ export class StatClass {
     dailyPublic: number;
     lastPublic: number;
     streamCategory: string;
+    secretCategory: string;
     dailyStream: number;
     lastStream: number;
     camChannels: string[];
@@ -53,6 +62,7 @@ export class StatClass {
     minStaffRole: string;
     streamerRole: string;
     owneredStreams: IStreamChannel[];
+    owneredPrivate: IPrivateRoom[]
 }
 
 @modelOptions({ options: { customName: 'Guilds', allowMixed: 0 } })

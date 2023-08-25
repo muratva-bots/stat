@@ -171,7 +171,7 @@ export async function ranksHandler(client: Client, message: Message, guildData: 
 
             await GuildModel.updateOne(
                 { id: message.guildId },
-                { $set: { 'point.ranks': guildData.ranks } },
+                { $set: { 'stat.ranks': guildData.ranks } },
             );
 
             i.reply({
