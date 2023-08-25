@@ -1,6 +1,5 @@
 import { getModelForClass, modelOptions, prop } from '@typegoose/typegoose';
 import { RankFlags } from '@/enums';
-import { PermissionsString } from 'discord.js';
 
 export interface IRank {
     type: RankFlags;
@@ -91,6 +90,8 @@ export class GuildClass {
             meetingStat: 500,
             noMute: true,
             eventFinishTimestamp: Date.now(),
+            staffTakePoints: 70,
+            taggedPoints: 70
         },
     })
     public point: object;

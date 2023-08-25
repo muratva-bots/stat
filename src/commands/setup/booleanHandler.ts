@@ -50,7 +50,7 @@ export async function booleanHandler(
 
             await GuildModel.updateOne(
                 { id: message.guildId },
-                { $set: { [`point.${option.value}`]: guildData[option.value] } },
+                { $set: { [`stat.${option.value}`]: guildData[option.value] } },
             );
 
             i.reply({

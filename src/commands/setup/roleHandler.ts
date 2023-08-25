@@ -74,7 +74,7 @@ export async function roleHandler(
 
             await GuildModel.updateOne(
                 { id: message.guildId },
-                { $set: { [`point.${option.value}`]: guildData[option.value] } },
+                { $set: { [`stat.${option.value}`]: guildData[option.value] } },
             );
 
             i.reply({
@@ -96,8 +96,8 @@ export async function roleHandler(
             } else guildData[option.value] = undefined;
 
             const updateQuery = option.isMultiple
-                ? { [`point.${option.value}`]: guildData[option.value] }
-                : { $unset: { [`point.${option.value}`]: 1 } };
+                ? { [`stat.${option.value}`]: guildData[option.value] }
+                : { $unset: { [`stat.${option.value}`]: 1 } };
             await GuildModel.updateOne({ id: message.guildId }, updateQuery);
 
             i.reply({

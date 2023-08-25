@@ -79,7 +79,7 @@ export async function channelHandler(
 
             await GuildModel.updateOne(
                 { id: message.guildId },
-                { $set: { [`point.${option.value}`]: guildData[option.value] } },
+                { $set: { [`stat.${option.value}`]: guildData[option.value] } },
                 { upsert: true, setDefaultsOnInsert: true },
             );
 
@@ -100,7 +100,7 @@ export async function channelHandler(
 
             await GuildModel.updateOne(
                 { id: message.guildId },
-                { $unset: { [`point.${option.value}`]: 1 } },
+                { $unset: { [`stat.${option.value}`]: 1 } },
                 { upsert: true, setDefaultsOnInsert: true },
             );
 

@@ -116,9 +116,9 @@ export async function ranksHandler(client: Client, message: Message, guildData: 
                         components: [countRow],
                     });
                 
-                    await i.showModal(modal);
+                    await typeCollected.showModal(modal);
                 
-                    const modalCollected = await i.awaitModalSubmit({
+                    const modalCollected = await typeCollected.awaitModalSubmit({
                         time: 1000 * 60 * 3,
                     });
                     if (modalCollected) {
@@ -171,7 +171,7 @@ export async function ranksHandler(client: Client, message: Message, guildData: 
 
             await GuildModel.updateOne(
                 { id: message.guildId },
-                { $set: { 'point.ranks': guildData.ranks } },
+                { $set: { 'stat.ranks': guildData.ranks } },
             );
 
             i.reply({
@@ -213,7 +213,7 @@ function createRow(message: Message, ranks: IRank[]) {
                 new StringSelectMenuBuilder({
                     custom_id: 'data',
                     disabled: !datas.length,
-                    placeholder: 'Görevler',
+                    placeholder: 'Roller',
                     max_values: datas.length === 0 ? 1 : datas.length,
                     options: datas.length
                         ? datas.map((r) => ({
