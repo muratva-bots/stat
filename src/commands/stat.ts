@@ -193,11 +193,13 @@ const Command: Stat.ICommand = {
         const voiceFriends = Object.keys(document.voiceFriends || {});
         const chatFriends = Object.keys(document.chatFriends || {});
         const bestFriendChat = chatFriends.length
-            ? chatFriends.reduce((a, b) => (chatFriends[a] > chatFriends[b] ? a : b))[0]
+            ? chatFriends.sort((a, b) => chatFriends[a] - chatFriends[b])[0]
             : undefined;
         const bestFriendVoice = voiceFriends.length
-            ? voiceFriends.reduce((a, b) => (voiceFriends[a] > voiceFriends[b] ? a : b))[0]
+            ? voiceFriends.sort((a, b) => voiceFriends[a] - voiceFriends[b])[0]
             : undefined;
+
+        console.log(bestFriendChat, bestFriendVoice)
 
         canvas.printText(
             bestFriendChat

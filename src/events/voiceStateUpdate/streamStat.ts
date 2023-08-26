@@ -6,25 +6,23 @@ function streamStat(client: Client, oldState: VoiceState, newState: VoiceState, 
     if (!oldState.streaming && !newState.streaming) return;
 
     const now = Date.now();
-    const cameraCached = client.streams.get(newState.id);
-    if (!cameraCached && newState.streaming) {
-        client.cameras.set(newState.id, {
-            channelId: newState.channelId,
-            joinedTimestamp: now,
-        });
-    }
-
-    if (!oldState.streaming && newState.streaming && cameraCached) {
-        const diff = now - cameraCached.joinedTimestamp;
-        if (diff) addStreamStat(newState.member, newState.channel as VoiceChannel, diff, guildData);
-        client.cameras.delete(newState.id);
-    }
-
-    if (oldState.streaming && !newState.streaming) {
+    
+    if (!oldState.streaming && newState.streaming) {
         client.streams.set(newState.id, {
             channelId: newState.channelId,
             joinedTimestamp: now,
         });
+        return;
+    }
+
+    if (oldState.streaming && !newState.streaming) {
+        const streamCached = client.streams.get(newState.id);
+        if (!streamCached) return;
+
+        const diff = now - streamCached.joinedTimestamp;
+        if (diff) addStreamStat(newState.member, newState.channel as VoiceChannel, diff, guildData);
+        client.streams.delete(newState.id);
+        return;
     }
 }
 

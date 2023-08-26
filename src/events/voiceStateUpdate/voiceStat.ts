@@ -19,30 +19,23 @@ async function voiceStat(client: Client, oldState: VoiceState, newState: VoiceSt
         if (!voiceCache) return;
 
         const diffValue = now - voiceCache.joinedTimestamp;
-        if (!diffValue) {
-            client.voices.delete(oldState.id);
-            return;
-        }
-
-        addVoiceStat(client, oldState.member, oldState.channel as VoiceChannel, diffValue, guildData);
+        if (diffValue) addVoiceStat(client, oldState.member, oldState.channel as VoiceChannel, diffValue, guildData);
         client.voices.delete(oldState.id);
         return;
     }
 
     if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
         const voiceCache = client.voices.get(oldState.id);
-        if (!voiceCache) return;
-
+        if (voiceCache) {
+            const diffValue = now - voiceCache.joinedTimestamp;
+            if (diffValue) addVoiceStat(client, oldState.member, oldState.channel as VoiceChannel, diffValue, guildData);
+        }
+        
         client.voices.set(`${oldState.member.guild.id}-${oldState.id}`, {
             channelId: newState.channelId,
             joinedTimestamp: now,
             joinedAt: now,
         });
-
-        const diffValue = now - voiceCache.joinedTimestamp;
-        if (!diffValue) return;
-
-        addVoiceStat(client, oldState.member, oldState.channel as VoiceChannel, diffValue, guildData);
         return;
     }
 }

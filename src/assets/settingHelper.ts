@@ -84,15 +84,6 @@ export const SETTINGS = [
         isMultiple: false,
     },
     {
-        name: 'Secret Kategori',
-        value: 'secretCategory',
-        description: 'Gizli Oda işte.',
-        type: 'channel',
-        isParent: true,
-        isVoice: false,
-        isMultiple: false,
-    },
-    {
         name: 'En Alt Yetkili Rolü',
         value: 'minStaffRole',
         description: 'En alt yetkili rolü işte.',

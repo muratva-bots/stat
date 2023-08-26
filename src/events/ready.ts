@@ -48,12 +48,12 @@ const Ready: Stat.IEvent<Events.ClientReady> = {
             const guildData = client.servers.get(guild.id);
             if (!guildData) return;
 
-            const now = Date.now();
+            const statNow = Date.now();
             client.streams.forEach(async (v, k) => {
                 const channel = guild.channels.cache.get(v.channelId);
                 if (!channel) return client.streams.delete(k);
 
-                const diff = now - v.joinedTimestamp;
+                const diff = statNow - v.joinedTimestamp;
                 if (!diff) return client.streams.delete(k);
 
                 const member = await client.utils.getMember(guild, k);
@@ -61,7 +61,7 @@ const Ready: Stat.IEvent<Events.ClientReady> = {
 
                 client.streams.set(k, {
                     channelId: v.channelId,
-                    joinedTimestamp: now,
+                    joinedTimestamp: statNow,
                 });
                 addStreamStat(member, channel as VoiceChannel, diff, guildData);
             });
@@ -70,7 +70,7 @@ const Ready: Stat.IEvent<Events.ClientReady> = {
                 const channel = guild.channels.cache.get(v.channelId);
                 if (!channel) return client.cameras.delete(k);
 
-                const diff = now - v.joinedTimestamp;
+                const diff = statNow - v.joinedTimestamp;
                 if (!diff) return client.cameras.delete(k);
 
                 const member = await client.utils.getMember(guild, k);
@@ -78,7 +78,7 @@ const Ready: Stat.IEvent<Events.ClientReady> = {
 
                 client.cameras.set(k, {
                     channelId: v.channelId,
-                    joinedTimestamp: now,
+                    joinedTimestamp: statNow,
                 });
                 addCameraStat(member, channel as VoiceChannel, diff, guildData);
             });
@@ -87,7 +87,7 @@ const Ready: Stat.IEvent<Events.ClientReady> = {
                 const channel = guild.channels.cache.get(v.channelId);
                 if (!channel) return;
 
-                const diff = now - v.joinedTimestamp;
+                const diff = statNow - v.joinedTimestamp;
                 if (!diff) return;
 
                 const member = await client.utils.getMember(guild, k);
@@ -95,7 +95,7 @@ const Ready: Stat.IEvent<Events.ClientReady> = {
 
                 client.voices.set(k, {
                     channelId: v.channelId,
-                    joinedTimestamp: now,
+                    joinedTimestamp: statNow,
                 });
                 if (!member.voice.mute) addVoiceStat(client, member, channel as VoiceChannel, diff, guildData);
             });
