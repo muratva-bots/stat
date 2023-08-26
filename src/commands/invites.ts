@@ -1,15 +1,5 @@
 import { UserStatModel } from '@/models';
-import { Canvas, loadFont, loadImage } from 'canvas-constructor/skia';
-import { AttachmentBuilder, EmbedBuilder } from 'discord.js';
-import { resolve } from 'path';
-
-loadFont('Kanit', resolve(__dirname, '..', 'assets/Kanit-Regular.ttf'));
-
-const specialColors = {
-    1: '#90c2cc',
-    2: '#ffd700',
-    3: '#e07f1f',
-};
+import { EmbedBuilder, bold } from 'discord.js';
 
 const Command: Stat.ICommand = {
     usages: ['invites', 'invite', 'inv'],
@@ -29,17 +19,18 @@ const Command: Stat.ICommand = {
             return;
         }
 
-        const document = await UserStatModel.find({ id: user.id, guild: message.guildId });
+        const document = await UserStatModel.findOne({ id: user.id, guild: message.guildId });
         if (!document) {
             client.utils.sendTimedMessage(message, 'Belirttiğin kullanıcının verisi bulunmuyor.');
             return;
         }
 
-        let inviteToplam = "";
-		for (let i = 0; i < document.length; i++) {
-			const data = document[i];
-			inviteToplam += `Toplam **${data.normalInvites}** davete sahip, **${data.normalInvites + data.suspectInvites}** bütün, **${data.leaveInvites}** ayrılan, **${data.suspectInvites}** sahte kullanıcı`;
-		}
+        const invitingUsers = await UserStatModel.find({ inviter: user.id, guild: message.guildId });
+        const now = Date.now();
+        const weeklyTotal = invitingUsers.filter(inv => 
+            message.guild.members.cache.has(inv.id) && 
+            1000 * 60 * 60 * 24 * 7 >= (now - message.guild.members.cache.get(inv.id).joinedTimestamp)
+        ).length
 
 		const embed = new EmbedBuilder({
             color: client.utils.getRandomColor(),
@@ -48,11 +39,14 @@ const Command: Stat.ICommand = {
                 icon_url: user.displayAvatarURL({ forceStatic: true })
             },
             footer: {
-                text: "Canzade was here!"
+                text: client.config.STATUS
             },
-            description: inviteToplam
-        })
-		
+            description: `Toplam ${bold((document.normalInvites + document.suspectInvites).toString())} daveti bulunuyor. (${
+                bold(document.normalInvites.toString())
+            } normal, ${bold(document.leaveInvites.toString())} ayrılan, ${
+                bold(document.suspectInvites.toString())
+            } sahte kullanıcı, ${bold(weeklyTotal.toString())} haftalık)`
+        });
 
 		message.channel.send({ embeds: [embed] });
     },

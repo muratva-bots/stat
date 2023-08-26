@@ -78,9 +78,7 @@ export async function roleHandler(
             );
 
             i.reply({
-                content: `Başarıyla ${bold(option.name)} adlı ayar ${roleMention(i.values[0])} (${inlineCode(
-                    i.values[0],
-                )}) şeklinde ayarlandı.`,
+                content: `Başarıyla ${bold(option.name)} adlı ayar ${i.values.map(v => `${roleMention(v)} (${inlineCode(v)})`).join(", ")} şeklinde ayarlandı.`,
                 ephemeral: true,
             });
 
@@ -101,9 +99,7 @@ export async function roleHandler(
             await GuildModel.updateOne({ id: message.guildId }, updateQuery);
 
             i.reply({
-                content: `Başarıyla ${bold(option.name)} adlı ayardan ${roleMention(i.values[0])} (${inlineCode(
-                    i.values[0],
-                )}) kaldırdı.`,
+                content: `Başarıyla ${bold(option.name)} adlı ayardan ${i.values.map(v => `${roleMention(v)} (${inlineCode(v)})`).join(", ")} kaldırdı.`,
                 ephemeral: true,
             });
 

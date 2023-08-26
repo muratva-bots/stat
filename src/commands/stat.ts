@@ -199,8 +199,6 @@ const Command: Stat.ICommand = {
             ? voiceFriends.sort((a, b) => voiceFriends[a] - voiceFriends[b])[0]
             : undefined;
 
-        console.log(bestFriendChat, bestFriendVoice)
-
         canvas.printText(
             bestFriendChat
                 ? (await client.utils.getUser(bestFriendChat))?.displayName || 'Hesabını silmiş.'

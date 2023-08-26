@@ -70,5 +70,9 @@ export async function addVoiceStat(
 
     guildData.dailyVoice += value;
 
+    const guildDiff = now.valueOf() - guildData.lastDay;
+    if (guildDiff >= ONE_DAY) guildData.days += Math.floor(guildDiff / ONE_DAY);
+    guildData.lastDay = now.setHours(0, 0, 0, 0);
+
     await GuildModel.updateOne({ id: channel.guild.id }, { $set: { stat: guildData } }, { upsert: true });
 }

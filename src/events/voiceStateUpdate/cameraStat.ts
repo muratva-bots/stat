@@ -6,7 +6,7 @@ function cameraStat(client: Client, oldState: VoiceState, newState: VoiceState, 
     if (!oldState.selfVideo && !newState.selfVideo) return;
 
     const now = Date.now();
-    if (oldState.selfVideo && !newState.selfVideo) {
+    if (!oldState.selfVideo && newState.selfVideo) {
         const cameraCached = client.cameras.get(newState.id);
         if (!cameraCached) return;
 
@@ -15,7 +15,7 @@ function cameraStat(client: Client, oldState: VoiceState, newState: VoiceState, 
         client.cameras.delete(newState.id);
     }
 
-    if (!oldState.selfVideo && newState.selfVideo) {
+    if (oldState.selfVideo && !newState.selfVideo) {
         client.cameras.set(newState.id, {
             channelId: newState.channelId,
             joinedTimestamp: now,

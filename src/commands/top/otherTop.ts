@@ -54,29 +54,35 @@ async function otherTop(client: Client, message: Message, question: Message, gui
                 total: {
                     $reduce: {
                         input: {
-                            $map: {
+                            $reduce: {
                                 input: {
-                                    $filter: {
-                                        input: { $objectToArray: `$${dataOptions[type].daysData}` },
-                                        as: 'day',
-                                        cond: { $gte: [guildData.days - 7, { $subtract: [guildData.days, { $toInt: '$$day.k' }] }] },
-                                    }
-                                },
-                                as: 'dayItem',
-                                in: {
-                                    $reduce: {
+                                    $map: {
                                         input: {
                                             $filter: {
-                                                input: { $objectToArray: '$$dayItem.v' },
-                                                as: 'channel',
-                                                cond: { $in: ['$$channel.k', dataOptions[type].channels] },
+                                                input: { $objectToArray: `$${dataOptions[type].daysData}` },
+                                                as: 'day',
+                                                cond: { $lte: [{ $subtract: [guildData.days, { $toInt: '$$day.k' }] }, guildData.days - 7] },
                                             }
                                         },
-                                        in: { $add: ["$$value", "$$this.v"] },
-                                        initialValue: 0,
-                                    }
-                                }
-                            },
+                                        as: 'dayItem',
+                                        in: {
+                                            $map: {
+                                                input: {
+                                                    $filter: {
+                                                        input: { $objectToArray: '$$dayItem.v' },
+                                                        as: 'channel',
+                                                        cond: { $in: ['$$channel.k', dataOptions[type].channels] },
+                                                    }
+                                                },
+                                                as: "channelItem",
+                                                in: "$$channelItem.v"
+                                            }
+                                        }
+                                    },
+                                },
+                                initialValue: [],
+                                in: { $concatArrays: ["$$value", "$$this"] }
+                            }
                         },
                         initialValue: 0,
                         in: { $add: ["$$value", "$$this"] },
@@ -88,6 +94,7 @@ async function otherTop(client: Client, message: Message, question: Message, gui
         { $limit: 10 },
         { $project: { id: 1, total: 1 } },
     ]);
+
 
     typeRow.components[0].options.forEach((option) => option.setDefault(false));
     const optionIndex = typeRow.components[0].options.findIndex(
