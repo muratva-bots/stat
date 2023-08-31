@@ -23,7 +23,7 @@ const GuildMemberAdd: Stat.IEvent<Events.GuildMemberAdd> = {
             const isSuspect = 1000 * 60 * 60 * 24 * 7 >= Date.now() - member.user.createdTimestamp;
         if (!invite || !invite.inviter) {
             await GuildModel.updateOne({ id: member.guild.id }, { $set: { stat: guildData } }, { upsert: true });
-            logChannel.send({ content: `${member} üyesi sunucumuza ${bold("ÖZEL URL")} tarafından davet edildi. ${isSuspect ? "🚫" : ""}` })
+            logChannel.send({ content: `${client.utils.getEmoji("next")} ${member} üyesi sunucumuza ${bold("ÖZEL URL")} tarafından davet edildi. ${isSuspect ? "🚫" : ""}` })
             return;
         }
 
@@ -53,7 +53,7 @@ const GuildMemberAdd: Stat.IEvent<Events.GuildMemberAdd> = {
             { id: invite.inviter.id, guild: member.guild.id },
         );
 
-        logChannel.send({ content: `${member} üyesi sunucumuza katıldı. ${inlineCode(invite.inviter.username)} tarafından davet edildi, ve bu kişinin toplam davet sayısı ${bold(`${document.normalInvites}`)} oldu ${isSuspect ? "🚫" : ""}` })
+        logChannel.send({ content: `${client.utils.getEmoji("next")} ${member} üyesi sunucumuza katıldı. ${inlineCode(invite.inviter.username)} tarafından davet edildi, ve bu kişinin toplam davet sayısı (${bold(`${document.normalInvites}`)}) oldu ${isSuspect ? "🚫" : ""}` })
 
     },
 };

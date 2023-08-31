@@ -19,13 +19,13 @@ const GuildMemberRemove: Stat.IEvent<Events.GuildMemberRemove> = {
 
         const memberData = await UserStatModel.findOne({ id: member.id, guild: member.guild.id });
         if (!memberData || !memberData.inviter) {
-            logChannel.send({ content: `${member} üyesi sunucumuzdan ayrıldı. ${bold("ÖZEL URL")} tarafından davet edilmişti.` })
+            logChannel.send({ content: `${client.utils.getEmoji("back")} ${member} üyesi sunucumuzdan ayrıldı. ${bold("ÖZEL URL")} tarafından davet edilmişti.` })
             return
         } 
         
         const inviterData = await UserStatModel.findOne({ id: memberData.inviter, guild: member.guild.id });
         if (!inviterData) {
-            logChannel.send({ content: `${member} üyesi sunucumuzdan ayrıldı. Kim tarafından davet edildiği bulunamadı.` })
+            logChannel.send({ content: `${client.utils.getEmoji("back")} ${member} üyesi sunucumuzdan ayrıldı. Kim tarafından davet edildiği bulunamadı.` })
             return
         }
 
@@ -38,7 +38,7 @@ const GuildMemberRemove: Stat.IEvent<Events.GuildMemberRemove> = {
         inviterData.leaveInvites += 1;
         inviterData.markModified("leaveInvites normalInvites");
         inviterData.save();
-        logChannel.send({ content: `${member} üyesi sunucumuzdan ayrıldı. ${inlineCode(inviter.username)} tarafından davet edilmişti bu kişinin toplam (${bold(`${inviterData.normalInvites}`)}) daveti oldu.` })
+        logChannel.send({ content: `${client.utils.getEmoji("back")} ${member} üyesi sunucumuzdan ayrıldı. ${inlineCode(inviter.username)} tarafından davet edilmişti bu kişinin toplam (${bold(`${inviterData.normalInvites}`)}) daveti oldu.` })
         return
     },
 };
