@@ -1,5 +1,5 @@
 import { GuildModel, UserStatModel } from '@/models';
-import { Events } from 'discord.js';
+import { Events, TextChannel, bold } from 'discord.js';
 
 const GuildMemberRemove: Stat.IEvent<Events.GuildMemberRemove> = {
     name: Events.GuildMemberRemove,
@@ -8,6 +8,7 @@ const GuildMemberRemove: Stat.IEvent<Events.GuildMemberRemove> = {
 
         const guildData = client.servers.get(member.guild.id);
         if (!guildData) return;
+        const logChannel = member.guild.channels.cache.find(c => c.name === "invite") as TextChannel
 
         guildData.dailyLeave++;
         await GuildModel.updateOne(
@@ -17,15 +18,21 @@ const GuildMemberRemove: Stat.IEvent<Events.GuildMemberRemove> = {
         );
 
         const memberData = await UserStatModel.findOne({ id: member.id, guild: member.guild.id });
-        if (!memberData || !memberData.inviter) return;
+        if (!memberData || !memberData.inviter) {
+            logChannel.send({ content: `${member} üyesi sunucumuzdan ayrıldı. ${bold("ÖZEL URL")} tarafından davet edilmişti.` })
+            return
+        } 
 
         memberData.inviter = undefined;
         memberData.markModified("inviter");
         memberData.save();
 
         const inviterData = await UserStatModel.findOne({ id: memberData.inviter, guild: member.guild.id });
-        if (!inviterData) return;
-
+        if (!inviterData) {
+            logChannel.send({ content: `${member} üyesi sunucumuzdan ayrıldı. Kim tarafından davet edildiği bulunamadı.` })
+            return
+        } 
+        const inviter = await client.users.fetch(inviterData.inviter)
         if (inviterData.normalInvites > 0) inviterData.normalInvites -= 1;
         inviterData.leaveInvites += 1;
         memberData.markModified("leaveInvites normalInvites");

@@ -1,5 +1,5 @@
 import { GuildModel, StatClass } from "@/models";
-import { ActionRowBuilder, ButtonInteraction, ChannelType, Events, ModalBuilder, PermissionFlagsBits, PermissionsBitField, StringSelectMenuBuilder, TextInputBuilder, TextInputStyle, VoiceChannel, bold, channelMention, inlineCode, userMention } from "discord.js";
+import { ActionRowBuilder, ButtonInteraction, ChannelType, ComponentType, Events, Interaction, MentionableSelectMenuBuilder, ModalBuilder, PermissionFlagsBits, PermissionsBitField, StringSelectMenuBuilder, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder, VoiceChannel, bold, channelMention, inlineCode, userMention } from "discord.js";
 import { Client } from '@/structures';
 
 
@@ -30,15 +30,6 @@ async function privateRoom(client: Client, interaction: ButtonInteraction, guild
                 style: TextInputStyle.Short,
                 required: true
             }),
-            new TextInputBuilder({
-                custom_id: "private",
-                label: "Oda herkese gizli mi olacak?",
-                placeholder: "gizliyse evet, değilse hayır",
-                max_length: 5,
-                min_length: 3,
-                style: TextInputStyle.Short,
-                required: true
-            })
         ]
     });
     const modal = new ModalBuilder({ custom_id: "modal", title: "Özel Oda", components: [privateRoomInput]});
@@ -77,37 +68,22 @@ async function privateRoom(client: Client, interaction: ButtonInteraction, guild
         }
     }
 
-    const overwrites = [
-        {
-            id: interaction.guild.roles.everyone,
-            allow: [PermissionsBitField.Flags.ViewChannel],
-        },
-        {
-            id: interaction.user.id,
-            allow: [PermissionsBitField.Flags.ViewChannel],
-        },
-        {
-            id: interaction.user.id,
-            allow: [PermissionsBitField.Flags.Connect],
-        },
-    ];
-    if (channelPrivate.toLocaleLowerCase() === "evet" || channelPrivate.toLocaleLowerCase() === "evt") {
-        // overwrites.push({
-        //     id: interaction.guild.roles.everyone,
-        //     deny: [PermissionsBitField.Flags.Connect],
-        // });
-    } else {
-        overwrites.push({
-            id: interaction.guild.roles.everyone,
-            allow: [PermissionsBitField.Flags.Connect],
-        });
-    }
+
     const voiceChannel = await interaction.guild.channels.create({
         name: channelName,
         type: ChannelType.GuildVoice,
         parent: guildData.secretCategory,
         userLimit: parseInt(channelLimit) || 2,
-        permissionOverwrites: overwrites,
+        permissionOverwrites:  [
+            {
+                id: interaction.guild.roles.everyone,
+                deny: [PermissionsBitField.Flags.ViewChannel],
+            },
+            {
+                id: interaction.user.id,
+                allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.Connect],
+            },
+        ],
     });
     const textChannel = await interaction.guild.channels.create({
         name: channelName,
@@ -132,8 +108,7 @@ async function privateRoom(client: Client, interaction: ButtonInteraction, guild
             owner: interaction.user.id,
             textChannel: textChannel.id,
             voiceChannel: voiceChannel.id,
-            channelName: voiceChannel.name,
-            userPermissions: null
+            permissions: null
         }
     ];
 
@@ -165,7 +140,7 @@ async function privateRoom(client: Client, interaction: ButtonInteraction, guild
         ],
     });
 
-    await textChannel.send({
+    const question = await textChannel.send({
         content: `
 ${client.utils.getEmoji("zadestat")} Merhaba ${
             interaction.member
@@ -185,6 +160,203 @@ ${client.utils.getEmoji(
 `,
         components: [typeRow],
     });
+
+
+    const filter = (i: Interaction) => i.user.id === interaction.user.id;
+    const collector = await question.createMessageComponentCollector({
+        filter
+    });
+
+    collector.on('collect', async (i: Interaction) => {
+        if (i.isStringSelectMenu()) {
+
+        if(i.values[0] === "privateRoom-info") {
+
+            interaction.reply({ content: [
+                `Kanal Adı: ${voiceChannel.name}`,
+                `Kanal Limiti: ${voiceChannel.userLimit || "Yok"}`,
+                `Kanal Gizliliği: ${
+					voiceChannel
+						.permissionsFor(interaction.guild.id)
+						.has(PermissionsBitField.Flags.Connect)
+						? "Açık"
+						: "Gizli"
+				}`
+            ].join("\n"), ephemeral: true })
+
+        } if(i.values[0] === "user-allow") {
+            //maksimum 20 kullanıcı ekleyebilirsin cart curt
+            //kullanıcının zaten kanal izni var
+
+            const userAndRoleRow = new ActionRowBuilder<MentionableSelectMenuBuilder>({
+                components: [
+                    new MentionableSelectMenuBuilder({
+                        custom_id: 'auth',
+                        maxValues: 20,
+                        placeholder: 'Kullanıcı veya rol ara...',
+                    }),
+                ],
+            });
+          const question = await interaction.reply({ components: [userAndRoleRow], ephemeral: true })
+
+          const authCollected = await question.awaitMessageComponent({
+            time: 1000 * 60 * 10,
+            componentType: ComponentType.MentionableSelect,
+        });
+
+            if(authCollected) {
+                voiceChannel.permissionOverwrites.edit(`${authCollected.values}`, {
+                    Connect: true,
+                    ViewChannel: true
+                });
+                interaction.reply({ content: `${authCollected.values} kullanıcı(ları) başarıyla odaya eklendi.`, ephemeral: true })
+            }
+        } if(i.values[0] === "user-deny") {
+
+            //maksimum 20 kullanıcı ekleyebilirsin cart curt
+            //kullanıcının zaten kanal izni yok
+
+
+            const userAndRoleRow = new ActionRowBuilder<MentionableSelectMenuBuilder>({
+                components: [
+                    new MentionableSelectMenuBuilder({
+                        custom_id: 'auth',
+                        maxValues: 20,
+                        placeholder: 'Kullanıcı veya rol ara...',
+                    }),
+                ],
+            });
+          const question = await interaction.reply({ components: [userAndRoleRow], ephemeral: true })
+
+          const authCollected = await question.awaitMessageComponent({
+            time: 1000 * 60 * 10,
+            componentType: ComponentType.MentionableSelect,
+        });
+
+            if(authCollected) {
+                voiceChannel.permissionOverwrites.edit(`${authCollected.values}`, {
+                    Connect: false,
+                    ViewChannel: false
+                });
+                interaction.reply({ content: `${authCollected.values} kullanıcı(ları) başarıyla odadan yasaklandı.`, ephemeral: true })
+
+            }
+        } if(i.values[0] === "user-kick") {
+
+            const userAndRoleRow = new ActionRowBuilder<UserSelectMenuBuilder>({
+                components: [
+                    new UserSelectMenuBuilder({
+                        custom_id: 'auth',
+                        maxValues: 20,
+                        placeholder: 'Kullanıcı ara...',
+                    }),
+                ],
+            });
+          const question = await interaction.reply({ components: [userAndRoleRow], ephemeral: true })
+
+          const authCollected = await question.awaitMessageComponent({
+            time: 1000 * 60 * 10,
+            componentType: ComponentType.UserSelect,
+        });
+
+            if(authCollected) {
+                //yapılacak
+             
+                interaction.reply({ content: `${authCollected.values} kullanıcı(ları) bağlantısı kesildi.`, ephemeral: true })
+
+            }
+        } if(i.values[0] === "privateRoom-changeName") {
+
+            const privateRoomInput = new ActionRowBuilder<TextInputBuilder>({
+                components: [
+                    new TextInputBuilder({
+                        custom_id: "name-edit",
+                        label: "Oda ismini düzenle",
+                        placeholder: "canzade özel odası",
+                        min_length: 4,
+                        max_length: 15,
+                        style: TextInputStyle.Short,
+                        required: true
+                    }),
+                ]
+            });
+            const modal = new ModalBuilder({ custom_id: "modal", title: "Özel Odanı Düzenle", components: [privateRoomInput]});
+        
+            await interaction.showModal(modal);
+        
+            const modalCollected = await interaction.awaitModalSubmit({ time: 1000 * 60 * 2 });
+            const channelNameEdit = modalCollected.fields.getTextInputValue("name-edit")
+
+          const authCollected = await question.awaitMessageComponent({
+            time: 1000 * 60 * 10,
+            componentType: ComponentType.UserSelect,
+        });
+
+            if(authCollected) {
+                const name = channelNameEdit
+                if (!name.match(inviteRegex)) {
+                    modalCollected.reply({
+                        content: "Sunucu daveti girmek?",
+                        ephemeral: true
+                    });
+                    return;
+            }
+
+             voiceChannel.edit({ name: name })
+
+             
+                interaction.reply({ content: `Oda ismi başarıyla ${bold(name)} olarak ayarlandı.`, ephemeral: true })
+
+            }
+        }  if(i.values[0] === "privateRoom-changeLimit") {
+
+            const privateRoomInput = new ActionRowBuilder<TextInputBuilder>({
+                components: [
+                 
+                    new TextInputBuilder({
+                        custom_id: "limit",
+                        label: "Oda limiti belirt",
+                        placeholder: "2",
+                        max_length: 2,
+                        style: TextInputStyle.Short,
+                        required: true
+                    }),
+                ]
+            });
+            const modal = new ModalBuilder({ custom_id: "modal", title: "Özel Odanı Düzenle", components: [privateRoomInput]});
+        
+            await interaction.showModal(modal);
+        
+            const modalCollected = await interaction.awaitModalSubmit({ time: 1000 * 60 * 2 });
+            const channelLimitEdit = modalCollected.fields.getTextInputValue("limit")
+
+          const authCollected = await question.awaitMessageComponent({
+            time: 1000 * 60 * 10,
+            componentType: ComponentType.UserSelect,
+        });
+
+            if(authCollected) {
+                const limit = Number(channelLimit);
+                if (!limit || 0 > limit) {
+                    modalCollected.reply({
+                        content: "Geçerli bir sayı gir.",
+                        ephemeral: true
+                    });
+                    return;
+                }
+
+             voiceChannel.edit({ userLimit: limit })
+             
+                interaction.reply({ content: `Oda limiti başarıyla ${bold(`${limit}`)} olarak ayarlandı.`, ephemeral: true })
+
+            }
+        }
+
+
+        }
+    })
+
+
       
     }
 
