@@ -2,7 +2,7 @@ import { UserStatModel } from '@/models';
 import { EmbedBuilder, bold } from 'discord.js';
 
 const Command: Stat.ICommand = {
-    usages: ['invites', 'invite', 'inv'],
+    usages: ['invites', 'invite', 'inv', 'davet'],
     execute: async ({ client, message, args }) => {
         const user = args.length
             ? (await client.utils.getUser(args[0])) ||

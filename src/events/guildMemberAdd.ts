@@ -40,7 +40,7 @@ const GuildMemberAdd: Stat.IEvent<Events.GuildMemberAdd> = {
 
         await UserStatModel.updateOne(
             { id: member.id, guild: member.guild.id },
-            { $set: { inviter: invite.inviter.id } },
+            { $set: { inviter: invite.inviter.id, date: Date.now() } },
             { upsert: true },
         );
 

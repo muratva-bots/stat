@@ -73,6 +73,9 @@ export class UserStatClass {
     @prop({ type: Number, default: 0 })
     public normalInvites: number;
 
+    @prop({ type: () => Number, default: () => Date.now() })
+    public date: number;
+
     @prop({ type: Number, default: 1 })
     public days: number;
 

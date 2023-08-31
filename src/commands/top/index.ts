@@ -18,6 +18,7 @@ const titlesAndKeys = {
     'weekly-stream': 'Haftalık Yayın Sıralama',
     'weekly-public': 'Haftalık Public Sıralama',
     'weekly-register': 'Haftalık Teyit Ses Sıralama',
+    'weekly-invite': 'Haftalık Davet Sıralama',
 };
 
 const typeRow = new ActionRowBuilder<StringSelectMenuBuilder>({
