@@ -153,11 +153,7 @@ export async function ranksHandler(client: Client, message: Message, guildData: 
                         });
                 
                         i.editReply({
-                            content: `${
-                                roleCollected.isButton()
-                                    ? 'Herkese göre rol'
-                                    : `${roleMention(roleCollected.values[0])} (${inlineCode(roleCollected.values[0])}) rolü`
-                            } ayarlandı.`,
+                            content: `${roleMention(roleCollected.values[0])} (${inlineCode(roleCollected.values[0])}) rolü ayarlandı.`,
                             components: [],
                         });
                     }

@@ -19,11 +19,16 @@ const GuildMemberRemove: Stat.IEvent<Events.GuildMemberRemove> = {
         const memberData = await UserStatModel.findOne({ id: member.id, guild: member.guild.id });
         if (!memberData || !memberData.inviter) return;
 
+        memberData.inviter = undefined;
+        memberData.markModified("inviter");
+        memberData.save();
+
         const inviterData = await UserStatModel.findOne({ id: memberData.inviter, guild: member.guild.id });
         if (!inviterData) return;
 
         if (inviterData.normalInvites > 0) inviterData.normalInvites -= 1;
         inviterData.leaveInvites += 1;
+        memberData.markModified("leaveInvites normalInvites");
         inviterData.save();
     },
 };
