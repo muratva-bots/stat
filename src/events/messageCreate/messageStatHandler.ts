@@ -1,5 +1,5 @@
 import { GuildModel, StatClass, UserStatModel } from '@/models';
-import { Message, TextChannel } from 'discord.js';
+import { Colors, EmbedBuilder, Message, TextChannel, inlineCode, roleMention } from 'discord.js';
 import { RankFlags } from 'src/enums/RankFlags';
 
 const ONE_DAY = 1000 * 60 * 60 * 24;
@@ -53,7 +53,21 @@ async function messageStatHandler(message: Message, guildData: StatClass) {
             const oldRanks = guildData.ranks.filter((r) => message.member.roles.cache.has(r.role)).map((r) => r.role);
             if (oldRanks.length) message.member.roles.remove(oldRanks);
         }
-        if (!message.member.roles.cache.has(newRank.role)) message.member.roles.add(newRank.role);
+        if (!message.member.roles.cache.has(newRank.role)) {
+            message.member.roles.add(newRank.role);
+
+            const logChannel = message.guild.channels.cache.find(c => c.name === 'rank-up') as TextChannel;
+            if (logChannel) {
+                await logChannel.send({
+                    embeds: [
+                        new EmbedBuilder({
+                            color: Colors.Aqua,
+                            description: `${message.member} (${inlineCode(message.member.id)}) adlı kullanıcıya ${roleMention(newRank.role)} rolü verildi.`
+                        })
+                    ]
+                });
+            }
+        }
     }
 
     const reference = message.reference ? (await message.fetchReference()).author : undefined;
